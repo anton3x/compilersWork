@@ -1,3 +1,2 @@
-MANUTENCAO(0)
-RECOLHE([(A4gt6,3),(cbv45,36),(12345,216)])
+RECOLHE([(A4gt6,1),(cbv45,11)])
 
