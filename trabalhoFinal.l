@@ -19,6 +19,7 @@
     char palavraInvalida[1000][100] = {"\0","\0"};
     int iteratorLetra = 0;
     int iteratorPalavra = 0;
+    int iteratorElementoLivreVetor = 0;
 
 
 	int numManutencao=0;
@@ -35,9 +36,9 @@
 		else
             printf("Localizacao Atual: %s\n", localizacoes[localizacao]);
         printf("Lista de peças: ");
-        for(int i = 0; i< numeroDeMateriaisATransportar; i++)
+        for(int i = 0; i< 80; i++)
         {
-            if(materiasATransportar[i][0] !='\0')
+            if(materiasATransportar[i][0] != '\0')
                 printf("\n%s-%d", materiasATransportar[i], valueMateriasATransportar[i]);
         }
 		printf("\nQuantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
@@ -54,13 +55,24 @@
 		}
 		return quantidade;
 	}
-    int procurarMaterialNoCarro(char tipoMaterial[6], char materiasATransportar[][6], int quantidadeMateriaisNoCarro)
+    int procurarMaterialNoCarro(char tipoMaterial[6], char materiasATransportar[][6])
     {
-        for(int i = 0; i < quantidadeMateriaisNoCarro; i++)
+        for(int i = 0; i < 80; i++)
             if (strcmp(tipoMaterial, materiasATransportar[i]) == 0)
             {
                 return i;
             }
+        return -1;
+    }
+    int indiceElementoLivreMaisProximo(char materiasATransportar[][6])
+    {
+        for(int i = 0; i < 80; i++)
+        {
+            if (materiasATransportar[i][0] == '\0')
+            {
+                return i;
+            }
+        }
         return -1;
     }
 
@@ -175,7 +187,7 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                     }
                 }
 
-                int indiceMaterialNoVetor = procurarMaterialNoCarro(tipoMaterialDesejado,materiasATransportar,numeroDeMateriaisATransportar);
+                int indiceMaterialNoVetor = procurarMaterialNoCarro(tipoMaterialDesejado,materiasATransportar);
 
                 if (indiceMaterialNoVetor == -1)
                 {
@@ -197,6 +209,7 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                     if (valueMateriasATransportar[indiceMaterialNoVetor] == 0)
                     {
                         materiasATransportar[indiceMaterialNoVetor][0] = '\0';
+                        iteratorElementoLivreVetor = indiceElementoLivreMaisProximo(materiasATransportar);
                     }
                 }
 		    }
@@ -237,7 +250,6 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                             char p[1][2] = {"\0"};
                             strncpy(p[0], (yytext + ultimaPosicao), i - ultimaPosicao - 1);
                             quantidadesVetorAux[numeroDoElementoLivreNoVetor++] = atoi(p[0]);
-                            //quantidadeMateriaisATransportar++;
 
                     }
                 }
@@ -262,21 +274,17 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                     }
 
                     printf("\nOs materiais cabem no carro");
-                    for (int i = 0; i < numeroDeMateriaisATransportar; i++)
+                    for (int i = 0; i < 80; i++)
                     {
                         for(int j = 0; j < quantidadeMateriaisExigida; j++)
                         {
                             if (strcmp(materiasATransportar[i],vetorAux[j]) == 0)
                             {
-                                //char p[1][2] = {"\0"};
                                 valueMateriasATransportar[i] += quantidadesVetorAux[j];
                                 quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
-                                //strcpy(valueMateriasATransportar[i], valueMateriasATransportar[i] + quantidadesVetorAux[j]);
-                                //strcpy(quantidadeTotalDeMateriaisATransportar, quantidadeTotalDeMateriaisATransportar + quantidadesVetorAux[j]);
                                 strcpy(vetorAux[j], "\0");
                                 quantidadesVetorAux[j] = 0;
-                                //strcpy(quantidadesVetorAux[i], 0);
-                                //break; //ADMITINDO QUE TODOS OS ELEMENTOS PASSADOS PARA A EXPRESSAO REGULAR SAO DIFERENTES
+
                             }
                         }
                     }
@@ -284,11 +292,12 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                     {
                         if (vetorAux[i][0] != '\0')
                         {
-                            strcpy(materiasATransportar[numeroDeMateriaisATransportar],vetorAux[i]);
-                            valueMateriasATransportar[numeroDeMateriaisATransportar++] = quantidadesVetorAux[i];
+                            strcpy(materiasATransportar[iteratorElementoLivreVetor],vetorAux[i]);
+                            valueMateriasATransportar[iteratorElementoLivreVetor] = quantidadesVetorAux[i];
                             quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
                             strcpy(vetorAux[i],"");
                             quantidadesVetorAux[i] = 0;
+                            iteratorElementoLivreVetor = indiceElementoLivreMaisProximo(materiasATransportar);
 
                         }
                     }
