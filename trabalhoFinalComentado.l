@@ -124,8 +124,8 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
 		    	    cargaBateriaCarro-=(10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
                 }
 
-                //se o contador de vezes que foi a manutencao for superior ou igual a 3, apresenta um erro
-                if (numManutencao >= 3)
+                //se o contador de vezes que foi a manutencao for igual a 3, apresenta um erro
+                if (numManutencao == 3)
                 {
                     printf("\nO carro ja foi 3 vezes a manutencao, cuidado!!!");
                     //resetar o contador de manutencao
