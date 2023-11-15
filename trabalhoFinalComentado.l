@@ -1,5 +1,5 @@
 %x MANUTENCAO CARREGA_BATERIA RECOLHE ENTREGA ESTADO
-//definicao dos contextos exclusivos
+
 %{
     //declaracao das bibliotecas necessarias
 	#include <stdio.h>
@@ -27,6 +27,8 @@
     char contexto[6][16] = {"MANUTENCAO", "CARREGA-BATERIA", "RECOLHE", "ENTREGA", "ESTADO", "INITIAL"};
     //variavel que armazena um valor entre 0 e 5, sendo 0 a "MANUTENCAO" e 5 o "INITIAL"
     int contextoAtual = 5;
+    //vetor que armazena 0 ou 1 para cada elemento, e cada elemento corresponde a um CONTEXTO
+    int contextosUsados[6] = {0};
     //vetor que vai armazenar as expressoes passados pelo ficheiro que se encontram invalidas
     char palavraInvalida[1000][100] = {"\0","\0"};
     //variavel que tem o indice do elemento do vetor, neste caso, a letra desse elemento, que esta livre
@@ -43,7 +45,7 @@
     //se quisermos exibir o estado final, passado true como argumento para a funcao
 	void printInfo(bool final)
 	{
-		printf("\nEstado da bateria: %d%%\n", cargaBateriaCarro);
+		printf("Estado da bateria: %d%%\n", cargaBateriaCarro);
         if (final == true)
 		    printf("Localizacao Final: %s\n", localizacoes[localizacao]);
 		else
@@ -56,6 +58,8 @@
         }
 		printf("\nQuantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
 		printf("Numero de vezes que foi a manutencao: %d\n", numManutencao);
+		if (final)
+		    printf("\n");
 	}
 
     //funcao responsavel para contar a quantidade de um caracter em especifico em um vetor
@@ -100,20 +104,23 @@
 
 %%
 
-MANUTENCAO  {BEGIN(MANUTENCAO);contextoAtual = 0;}
-CARREGA-BATERIA    {BEGIN(CARREGA_BATERIA);contextoAtual = 1;}
-RECOLHE    {BEGIN(RECOLHE);contextoAtual = 2;}
-ENTREGA    {BEGIN(ENTREGA);contextoAtual = 3;}
-ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
+MANUTENCAO  {BEGIN(MANUTENCAO);contextoAtual = 0;contextosUsados[contextoAtual] = 1;}
+CARREGA-BATERIA    {BEGIN(CARREGA_BATERIA);contextoAtual = 1;contextosUsados[contextoAtual] = 1;}
+RECOLHE    {BEGIN(RECOLHE);contextoAtual = 2;contextosUsados[contextoAtual] = 1;}
+ENTREGA    {BEGIN(ENTREGA);contextoAtual = 3;contextosUsados[contextoAtual] = 1;}
+ESTADO    {BEGIN(ESTADO);contextoAtual = 4;contextosUsados[contextoAtual] = 1;}
 
 <MANUTENCAO>\([0-2]\) {
+            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //imprime o estado inicial do carro
 			printInfo(false);
 			//imprime a instrucao passada
-			printf("\nMANUTENCAO%s", yytext);
+			printf("----------------------\n");
+			printf("|   MANUTENCAO%s    |\n", yytext);
+			printf("----------------------\n");
 
             //se o carro tiver carga suficiente para ir a manutencao, ou se ja estiver na manutencao
-			if (cargaBateriaCarro >= (10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar) || localizacao == 0)
+			if (cargaBateriaCarro >= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar) || localizacao == 0)
 			{
 			    //incrementa o contador de vezes que foi a manutencao
 				numManutencao++;
@@ -121,7 +128,7 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
 		    	if (localizacao != 0)
                 {
                     localizacao=0;
-		    	    cargaBateriaCarro-=(10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
+		    	    cargaBateriaCarro-=(10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
                 }
 
                 //se o contador de vezes que foi a manutencao for igual a 3, apresenta um erro
@@ -143,14 +150,18 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
 			//retornar ao contexto inicial
 			BEGIN(INITIAL);
 			contextoAtual = 5;
+			contextosUsados[contextoAtual] = 0;
 		}
 <CARREGA_BATERIA>\([0-2]\) {
+            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //imprime o estado inicial do carro
 			printInfo(false);
 			//imprime a instrucao passada
-			printf("\nCARREGA_BATERIA%s", yytext);
+			printf("------------------------\n");
+			printf("|  CARREGA-BATERIA%s  |\n", yytext);
+			printf("------------------------\n");
 			//variavel que tem a quantidade necessaria de bateria para o trajeto
-			float quantidadeBateriaNecessaria = (10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
+			float quantidadeBateriaNecessaria = (10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
 
             //se ele tem carga suficiente para fazer o trajeto e a sua bateria nao esta a 100%
 			if ((cargaBateriaCarro >= quantidadeBateriaNecessaria) && (cargaBateriaCarro != 100))
@@ -177,15 +188,27 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
             BEGIN(INITIAL);
             contextoAtual = 5;
             printf("\n");
+			contextosUsados[contextoAtual] = 0;
 		    }
 
 <ENTREGA>\([A-Z]{2}([1-9]|[1-9][0-9]|100),[a-zA-Z0-9]{5},[1-9][0-9]*\)  {
+            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //variavel que vai conter se o carro tem carga suficiente para o trajeto, se tiver fica a true, se nao false, mas e inicializada com false
 			bool cargaBateriaSuficiente = false;
 			//imprimir estado inicial do carro
             printInfo(false);
             //imprime a instrucao passada
-            printf("\nENTREGA%s", yytext);
+
+            for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+            printf("\n|  ENTREGA%s  |\n", yytext);
+            for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+            printf("\n");
             //variavel que vai conter a quantidade de bateria necessaria para o carro fazer o trajeto
             float quantidadeBateriaNecessaria;
 
@@ -194,12 +217,12 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
             //se o carro nao estiver em alguma linha de montagem, a quantidade de bateria necessaria e atribuida a variavel reponsavel e se o carro tiver mais ou igual a esse valor,
             //a variavel cargaBateriaSuficiente e colocada como verdade
             if (localizacao == 3) {
-                quantidadeBateriaNecessaria = (5 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                quantidadeBateriaNecessaria = (5  + 0.01 * quantidadeTotalDeMateriaisATransportar);
                 if (cargaBateriaCarro >= quantidadeBateriaNecessaria)
                     cargaBateriaSuficiente = true; //tem carga suficiente
 
             } else {
-                quantidadeBateriaNecessaria = (10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                quantidadeBateriaNecessaria = (10  + 0.01 * quantidadeTotalDeMateriaisATransportar);
                 if (cargaBateriaCarro >= quantidadeBateriaNecessaria)
                     cargaBateriaSuficiente = true; //tem carga suficiente
 
@@ -285,16 +308,27 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
             //retornar ao contexto inicial
             BEGIN(INITIAL);
             contextoAtual = 5;
+			contextosUsados[contextoAtual] = 0;
         }
 
 <RECOLHE>\(\[\([0-9A-Za-z]{5},[1-9][0-9]*\)(,\([0-9A-Za-z]{5},[1-9][0-9]*\))*\]\) {
+            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //imprimir estado inicial do carro
 			printInfo(false);
 			//imprime a instrucao passada
-		    printf("\nRECOLHE%s", yytext);
+		    for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+            printf("\n|  RECOLHE%s  |\n", yytext);
+            for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+            printf("\n");
 
             //se o carro tem bateria suficiente ou se ja se encontrar no armazem, pode seguir em frente
-            if (cargaBateriaCarro >= (10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar) || (localizacao == 2))
+            if (cargaBateriaCarro >= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar) || (localizacao == 2))
             {
                 //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
                 int quantidadeMateriaisExigida = contarCaracterNoVetor(yytext,strlen(yytext),'(') - 1;
@@ -352,7 +386,7 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
                     //se ele nao se encontra no armazem, coloca-o la e subtrai a quantidade de bateria da viagem
                     if (localizacao != 2)
                     {
-                        cargaBateriaCarro -= (10 * cargaBateriaCarro + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                        cargaBateriaCarro -= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
                         localizacao = 2;
                     }
 
@@ -408,12 +442,31 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
             //retornar ao contexto inicial
             BEGIN(INITIAL);
             contextoAtual = 5;
+			contextosUsados[contextoAtual] = 0;
 			}
 <ESTADO>\((B|T|M|(T,(B|M))|(B,(T|M))|(M,(T|B))|(B,T,M)|(T,M,B)|(M,B,T)|(T,B,M)|(M,T,B)|(B,M,T))\) {
+            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //imprimir estado inicial do carro
-			printInfo(false);
+			//printInfo(false);
 			//imprime a instrucao passada
-		    printf("\nESTADO%s", yytext);
+		    for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+            printf("\n|  ESTADO%s  |\n", yytext);
+            for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+            {
+                printf("-");
+            }
+
+            //vetor auxiliar para armazenar o yytext
+            char yytextAux[8] = {'\0'};
+            //armazenar os caracteres de yytext em yytextAux
+            for(int i = 0 ; i < strlen(yytext); i++)
+            {
+                yytextAux[i] = yytext[i];
+            }
+
 
             //opcoes disponiveis que podemos passar para o ESTADO()
 			char options[3] = {'B','T','M'};
@@ -427,38 +480,70 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;}
 				//ESTADO(B) -> B ta no 7 lugar, se for com 2 letras, ESTADO(T,B) -> B ta no 9 lugar, e ESTADO(T,M,B) -> B ta no 11 lugar
 				//se o if verificar o B em algum desses lugares, vai definir que encontrou a letras
 				//se o B se mantivesse na 1 posicao quando passamos mais de que uma letras, ia definir igual pois a 7 posicao ia ser o B
-				if (yytext[7] == options[i] || yytext[9] == options[i] || yytext[11] == options[i])
+				if (yytextAux[1] == options[i] || yytextAux[3] == options[i] || yytextAux[5] == options[i])
 					found[i] = true;
 			}
 
 			printf("\n");
 			if (found[0]==true) //Se encontrou o B
-				printf("\nEstado da bateria: %d%%", cargaBateriaCarro);
-			if (found[1]==true) //Se encontrou o T
+				printf("Estado da bateria: %d%%\n", cargaBateriaCarro);
+			if (found[2]==true) //Se encontrou o M
 			{
-				printf("\nLista de peças: IMPLEMENTAR\n");
-				printf("Quantidade de peças a transportar: %d", quantidadeTotalDeMateriaisATransportar);
+				printf("Lista de peças: \n");
+                for(int i = 0; i< 80; i++)
+                {
+                    if(materiasATransportar[i][0] != '\0')
+                        printf("%s-%d\n", materiasATransportar[i], valueMateriasATransportar[i]);
+                }
+				printf("Quantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
 			}
-			if (found[2] == true) //Se encontrou o M
-				printf("\nTAREFAS PENDENTES:");
+			if (found[1] == true) //Se encontrou o T
+				printf("TAREFAS PENDENTES: NENHUMA\n");
 
 			printf("\n");
             //imprimir estado inicial do carro
-            printInfo(true);
+            //printInfo(true);
             BEGIN(INITIAL);
             contextoAtual = 5;
+			contextosUsados[contextoAtual] = 0;
 			}
-//se nos encontrar-mos em algum dos contextos de baixo, e a expressao nao passar na expressao regular acima, ela e invalida e entao vai passar nesta expressao de baixo
-//basicamente, vai colocar no vetor que contem as expressoes invalidas, a expressao que foi passada e vai colocar o contexto como inicial e incrementar o "iteratorPalavra"
-<MANUTENCAO,CARREGA_BATERIA,RECOLHE,ENTREGA,ESTADO>(.*|\n) {strcat(palavraInvalida[iteratorPalavra], contexto[contextoAtual]);if (*yytext != '\n'){strcat(palavraInvalida[iteratorPalavra++], yytext);}else{iteratorPalavra++;}BEGIN(INITIAL);}
-//se estamos no contexto inicial e chega aqui, entao a expressao e invalida, logo vamos ir colocando no vetor de palavras invalidas, caracter a caracter da expressao invalida
-<INITIAL>. {palavraInvalida[iteratorPalavra][iteratorLetra++] = *yytext;}
-//quando chegamos ao \n a seguir á expressao invalida, o que ele vai fazer é incrementar um valor ao "iteratorPalavra" e o "iteratorLetra" fica a 0, mas so acontece se o elemento de indice == "iteratorPalavra" naquele vetor for \0 no primeiro caracter
-<INITIAL>\n  {if (palavraInvalida[iteratorPalavra][0] != '\0'){iteratorPalavra++;iteratorLetra = 0;}}
-//quando chegamos ao final do ficheiro, se o elemento de indice == "iteratorPalavra" naquele vetor for \0 no primeiro caracter, entao incrementa um valor ao "iteratorPalavra"
-//se existir expressoes invalidas, exibe as expressoes invalidas do vetor "palavraInvalida"
-<<EOF>> {   if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;}
-            if (iteratorPalavra != 0) {printf("Expressoes invalidas(sintaxe): \n");}
+
+<MANUTENCAO,CARREGA_BATERIA,RECOLHE,ENTREGA,ESTADO>. {
+    //se ele estiver em um destes contextos, e tiver sido passada uma expressao com "CONTEXTO...", mas nao tiver passado na expressao de cima, ele vai colocar o nome do contexto no vetor de palavras invalidas
+    //apos isso vai aumentar o valor do iteratorLetra com o numero de caracteres do CONTEXTO, e atribuir o valor 0 ao elemento do vetor
+    //apos isso, a letra lida sera acrescentada ao vetor de palavras invalidas e voltamos ao CONTEXTO inicial
+    if (contextosUsados[contextoAtual] == 1)
+    {
+        strcat(palavraInvalida[iteratorPalavra], contexto[contextoAtual]);
+        iteratorLetra += strlen(contexto[contextoAtual]);
+        contextosUsados[contextoAtual] = 0;
+    }
+    palavraInvalida[iteratorPalavra][iteratorLetra++] = *yytext;
+    BEGIN(INITIAL);
+
+}
+
+<INITIAL>. {
+    //no contexto inicial so chega aqui se nao passou em nenhum contexto, ou seja, é uma expresao invalida.
+    //para cada caracter lido dessa expressao, vai ser colocado no vetor de palavras invalidas
+    palavraInvalida[iteratorPalavra][iteratorLetra++] = *yytext;
+}
+
+<MANUTENCAO,CARREGA_BATERIA,RECOLHE,ENTREGA,ESTADO,INITIAL>\n  {
+    //em qualquer contexto, se identificar o \n, vai verificar se o primeiro caracter do elemento com indice iteratorPalavra no vetor de palavras invalidas é diferente de \0
+    //se isso se verificar, entao esse elemento do vetor corresponde a uma palavra invalida, entao incrementamos o iteratorPalavra e resetamos o iteratorLetra
+    //tambem resetamos o contexto
+    if (palavraInvalida[iteratorPalavra][0] != '\0')
+    {
+        iteratorPalavra++;
+        iteratorLetra = 0;
+    }
+    BEGIN(INITIAL);
+    contextoAtual = 5;
+}
+
+<<EOF>> {   if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
+            if (iteratorPalavra != 0) {printf("Expressoes/palavras invalidas(sintaxe): \n");}
             for (int i = 0 ; i < iteratorPalavra; i++)
             {
                 printf("EXPRESSAO INVALIDA - %s\n", palavraInvalida[i]);
