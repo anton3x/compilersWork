@@ -447,9 +447,9 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;contextosUsados[contextoAtual] = 1;}
 <ESTADO>\((B|T|M|(T,(B|M))|(B,(T|M))|(M,(T|B))|(B,T,M)|(T,M,B)|(M,B,T)|(T,B,M)|(M,T,B)|(B,M,T))\) {
             if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
             //imprimir estado inicial do carro
-			//printInfo(false);
-			//imprime a instrucao passada
-		    for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
+	    //printInfo(false);
+	    //imprime a instrucao passada
+	    for(int i = 0; i < strlen(yytext) + strlen(contexto[contextoAtual]) + 6; i++)
             {
                 printf("-");
             }
@@ -469,34 +469,34 @@ ESTADO    {BEGIN(ESTADO);contextoAtual = 4;contextosUsados[contextoAtual] = 1;}
 
 
             //opcoes disponiveis que podemos passar para o ESTADO()
-			char options[3] = {'B','T','M'};
-			//options[i] -> found[i] correspondem uma a outra, se algum elemento do "found" for true, quer dizer que o elemento corresponde de "options" foi passado para a expresao
-			bool found[3] = {false, false, false};
+ 	    char options[3] = {'B','T','M'};
+	    //options[i] -> found[i] correspondem uma a outra, se algum elemento do "found" for true, quer dizer que o elemento corresponde de "options" foi passado para a expresao
+	    bool found[3] = {false, false, false};
 
             //Para cada uma das letras que podemos passar para o ESTADO()
-			for (int i = 0; i < 3; i++) //Para cada uma das letras que podemos passar para o ESTADO()
-			{
-				//vai verificar se passando so uma letra, ou duas ou tres, algumas delas corresponde com a letra em causa
-				//ESTADO(B) -> B ta no 7 lugar, se for com 2 letras, ESTADO(T,B) -> B ta no 9 lugar, e ESTADO(T,M,B) -> B ta no 11 lugar
-				//se o if verificar o B em algum desses lugares, vai definir que encontrou a letras
-				//se o B se mantivesse na 1 posicao quando passamos mais de que uma letras, ia definir igual pois a 7 posicao ia ser o B
-				if (yytextAux[1] == options[i] || yytextAux[3] == options[i] || yytextAux[5] == options[i])
-					found[i] = true;
-			}
-
-			printf("\n");
-			if (found[0]==true) //Se encontrou o B
-				printf("Estado da bateria: %d%%\n", cargaBateriaCarro);
-			if (found[2]==true) //Se encontrou o M
-			{
-				printf("Lista de peças: \n");
-                for(int i = 0; i< 80; i++)
-                {
-                    if(materiasATransportar[i][0] != '\0')
-                        printf("%s-%d\n", materiasATransportar[i], valueMateriasATransportar[i]);
-                }
-				printf("Quantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
-			}
+	    for (int i = 0; i < 3; i++) //Para cada uma das letras que podemos passar para o ESTADO()
+		{
+			//vai verificar se passando so uma letra, ou duas ou tres, algumas delas corresponde com a letra em causa
+			//ESTADO(B) -> B ta no 7 lugar, se for com 2 letras, ESTADO(T,B) -> B ta no 9 lugar, e ESTADO(T,M,B) -> B ta no 11 lugar
+			//se o if verificar o B em algum desses lugares, vai definir que encontrou a letras
+			//se o B se mantivesse na 1 posicao quando passamos mais de que uma letras, ia definir igual pois a 7 posicao ia ser o B
+			if (yytextAux[1] == options[i] || yytextAux[3] == options[i] || yytextAux[5] == options[i])
+				found[i] = true;
+		}
+	
+		printf("\n");
+		if (found[0]==true) //Se encontrou o B
+			printf("Estado da bateria: %d%%\n", cargaBateriaCarro);
+		if (found[2]==true) //Se encontrou o M
+		{
+			printf("Lista de peças: \n");
+	for(int i = 0; i< 80; i++)
+	{
+	    if(materiasATransportar[i][0] != '\0')
+		printf("%s-%d\n", materiasATransportar[i], valueMateriasATransportar[i]);
+	}
+			printf("Quantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
+		}
 			if (found[1] == true) //Se encontrou o T
 				printf("TAREFAS PENDENTES: NENHUMA\n");
 
