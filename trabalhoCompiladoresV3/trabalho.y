@@ -8,7 +8,7 @@
     int nerros=0;
 
     //vetor com todas as localizacoes possiveis para o carro
-    char localizacoes[4][25] = {"Posto de Manutenção","Posto de Carregamento","Armazem","Linhas de Montagem"};
+    char localizacoes[4][25] = {"Posto de Manutencao","Posto de Carregamento","Armazem","Linhas de Montagem"};
     char letrasEstadosPossiveis[3] = {'\0'};
     int iteratorLetraEstado = 0;
     //localizacao onde o carro esta no momento, o valor varia de 0 a 3, sendo 0 o "Posto de Manutencao" e 3 as "Linhas de Montagem"
@@ -32,9 +32,9 @@
     //vetor que armazena 0 ou 1 para cada elemento, e cada elemento corresponde a um CONTEXTO
     int contextosUsados[6] = {0};
     //vetor que vai armazenar as expressoes passados pelo ficheiro que se encontram invalidas
-    char palavraInvalida[1000][1000] = {"\0","\0"};
+    //char palavraInvalida[1000][1000] = {"\0","\0"};
     //variavel que tem o indice do elemento do vetor, neste caso, a letra desse elemento, que esta livre
-    int iteratorLetra = 0;
+    //int iteratorLetra = 0;
     //variavel que tem o indice do elemento do vetor que esta livre
     int iteratorPalavra = 0;
     //variavel que contem o indice do vetor de materiais do elemento livre mais proximo da origem
@@ -113,7 +113,7 @@
 
 
 %start program
-%token <letras> MANUTENCAO CARREGA_BATERIA ENTREGA RECOLHE ESTADO INIT_ESTADO INICIO_DAS_INSTRUCOES FINAL_DAS_INSTRUCOES LISTA I LMQ LOCALIZACAO
+%token <letras> MANUTENCAO CARREGA_BATERIA ENTREGA RECOLHE ESTADO INIT_ESTADO INICIO_DAS_INSTRUCOES FINAL_DAS_INSTRUCOES LISTA I LOCALIZACAO M LISTA_1
 %token <inteiro> Q
 
 
@@ -121,60 +121,19 @@
 
 %%
 
-program : INICIO_DAS_INSTRUCOES '{' instrucaoINIT instrucoes '}' FINAL_DAS_INSTRUCOES 
+program : INICIO_DAS_INSTRUCOES '{' instrucoes '}' FINAL_DAS_INSTRUCOES 
         ;
 
-instrucaoINIT : /* vazio*/
-              | INIT_ESTADO LOCALIZACAO ';'                         { 
-                                                                /*char localizacoes[4][25] = {"Posto de Manutenção","Posto de Carregamento","Armazem","Linhas de Montagem"};
-                                                                localizacao onde o carro esta no momento, o valor varia de 0 a 3, sendo 0 o "Posto de Manutencao" e 3 as "Linhas de Montagem"
-                                                                */
-                                                                printInfo(false);
-                                                                for(int i = 0; i < 20 + strlen($2); i++)
-                                                                {
-                                                                    printf("-");
-                                                                }
-                                                                printf("\n|   INIT-ESTADO%s    |\n",$2);
-                                                                for(int i = 0; i < 20 + strlen($2); i++)
-                                                                {
-                                                                    printf("-");
-                                                                }
-                                                                printf("\n");
+instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         { 
                                                                 bool usados[4] = {false, false,false,false};
-                                                                char vetorAux1[2][500] = {"\0"};
+                                                                char vetorAux1[2][1000] = {"\0"};
                                                                 int quantidades[2] = {0,0};
                                                                 int ultimaPosicao1 = 0;
-                                                                for(int i = 0 ; i < strlen($2); i++)
-                                                                {
-                                                                    
-                                                                    if ($2[i]==',' && !usados[0]) //colocar a localizacao inicial no vetor auxiliar
-                                                                    {
-                                                                        strncpy(vetorAux1[0], ($2 + 1), i - 1);
-                                                                        usados[0] = true;
-                                                                        ultimaPosicao1=i+1;
-                                                                    }
-                                                                    else if($2[i]==',' && !usados[1]) //colocar a carga da bateria
-                                                                    {
-                                                                        char p[1][10] = {"\0"};
-                                                                        strncpy(p[0], ($2 + ultimaPosicao1), i - ultimaPosicao1);
-                                                                        quantidades[0] = atoi(p[0]);
-                                                                        usados[1] = true;
-                                                                        ultimaPosicao1=i+1;
-                                                                    }
-                                                                    else if ($2[i]==',' && $2[i - 2]==']') //lista de materiais
-                                                                    {
-                                                                        strncpy(vetorAux1[1], ($2 + ultimaPosicao1), i - ultimaPosicao1);
-                                                                        usados[2] = true;
-                                                                        ultimaPosicao1=i+1;
-                                                                    }
-                                                                    else if(($2[i]==')' && !usados[3]) && ($2[i - 1 ] != ']' && $2[i + 1 ] != ']')) //numero de vezes na manutencao
-                                                                    {
-                                                                        char p1[1][10] = {"\0"};
-                                                                        strncpy(p1[0], ($2 + ultimaPosicao1), i - ultimaPosicao1);
-                                                                        quantidades[1] = atoi(p1[0]);
-                                                                        usados[3] = true;
-                                                                    }
-                                                                }
+                                                                strncpy(vetorAux1[0], $3, strlen($3));
+                                                                strncpy(vetorAux1[1], $7, strlen($7));
+                                                                quantidades[0] = $5;
+                                                                quantidades[1] = $9;
+                                                                
                                                                 /*vetorAux1[0] - localizacao inicial
                                                                   vetorAux1[1] - lista de materiais
                                                                   quantidades[0] - carga bateria do carro
@@ -182,145 +141,170 @@ instrucaoINIT : /* vazio*/
                                                                 
                                                                 */
 
-
-                                                                bool localizacaoInvalida = true;
+                                                                bool localizacaoInvalida = true, quantidadeInvalida = true;
+                                                                int numLocalizacao = -1;
                                                                 for(int i = 0; i < 4; i++)
                                                                 { 
                                                                     if(strcmp(localizacoes[i],vetorAux1[0]) == 0)
                                                                     {
-                                                                        localizacao=i;
+                                                                        numLocalizacao=i;
                                                                         localizacaoInvalida = false;
                                                                     }
                                                                 }
-                                                                if (!localizacaoInvalida)
-                                                                {cargaBateriaCarro = quantidades[0];
-                                                                //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
-                                                                int quantidadeMateriaisExigida = contarCaracterNoVetor(vetorAux1[1],strlen(vetorAux1[1]),'(') - 1;
+                                                                if($5 >= 0 && $5 <= 100)
+                                                                    quantidadeInvalida = false;
 
-                                                                //variavel auxiliar para a filtragem de informacao
-                                                                int ultimaPosicao=0;
-                                                                //variavel auxiliar que tem o proximo elemento livre do vetor
-                                                                int numeroDoElementoLivreNoVetor=0;
-
-                                                                //vetores auxiliares para armazenar os tipos de materiais e as quantidades desses materiais
-                                                                char vetorAux[80][15] = {"\0"};
-                                                                int quantidadesVetorAux[80] = {0,0};
-
-                                                                //o metodo de funcionamento e parecido ao da ENTREGA, mas basicamente ele vai percorrer todos os caracteres e ao detectar um "(", mas tem que ter antes um "[" ou ","
-                                                                //se isso se verificar ele guarda a posicao a seguir ao "(", que corresponde ao primeiro caracter do tipo de material em "ultimaPosicao"
-                                                                //quando encontrar uma virgula que a seguir a ela nao aparece um "(", ele sabe que antes dessa virgula e o ultimo caracter do tipo de material
-                                                                //entao ja sabemos, pegamos no indice antes da virgula usando o valor de "ultimaPosicao" conseguimos recortar a string correspondente ao tipo de material
-                                                                //a seguir a isso, colocamos no "ultimaPosicao" o valor do indice a seguir á virgula, que corresponde ao primeiro caracter da quantidade do material
-                                                                //ao detectar uma virgula antecedida por um ")" ou "]" antecedido por um ")", sabemos que antes do ")" esta o ultimo caracter da quantidade do material
-                                                                //entao obtemos a quantidade desse material recorrendo a esse indice e ao valor da "ultimaPosicao"
-                                                                for(int i = 1 ; i < strlen(vetorAux1[1]); i++)
+                                                                if (!localizacaoInvalida && !quantidadeInvalida)
                                                                 {
-                                                                    if ((vetorAux1[1][i-1]=='[' && vetorAux1[1][i]=='(' ) || ( vetorAux1[1][i-1] == ',' && vetorAux1[1][i]==' ' ))
+                                                                    printInfo(false);
+                                                                    localizacao=numLocalizacao;
+                                                                    for(int i = 0; i < 20 + 6 + strlen($3) + strlen($7); i++)
                                                                     {
-                                                                            if (vetorAux1[1][i]=='(' )
-                                                                                ultimaPosicao=i+1;
-                                                                            else
-                                                                                ultimaPosicao=i+2;
+                                                                        printf("-");
                                                                     }
-                                                                    if (vetorAux1[1][i+1]!=' ' && vetorAux1[1][i]==',')
+                                                                    printf("\n|   INIT-ESTADO(%s,%d,%s,%d)  |\n", $3,$5,$7,$9);
+                                                                    for(int i = 0; i < 20 + 6 + strlen($3) + strlen($7); i++)
                                                                     {
-                                                                            strncpy(vetorAux[numeroDoElementoLivreNoVetor], (vetorAux1[1] + ultimaPosicao), i - ultimaPosicao);
-                                                                            ultimaPosicao=i+1;
+                                                                        printf("-");
                                                                     }
-                                                                    if (vetorAux1[1][i-1]==')' && (vetorAux1[1][i]==',' || (vetorAux1[1][i]==']')))
-                                                                    {
-                                                                            char p[1][10] = {"\0"};
-                                                                            strncpy(p[0], (vetorAux1[1] + ultimaPosicao), i - ultimaPosicao - 1);
-                                                                            quantidadesVetorAux[numeroDoElementoLivreNoVetor++] = atoi(p[0]);
+                                                                    printf("\n");
 
-                                                                    }
-                                                                }
+                                                                    cargaBateriaCarro = quantidades[0];
+                                                                    //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
+                                                                    int quantidadeMateriaisExigida = contarCaracterNoVetor(vetorAux1[1],strlen(vetorAux1[1]),'(') - 1;
 
+                                                                    //variavel auxiliar para a filtragem de informacao
+                                                                    int ultimaPosicao=0;
+                                                                    //variavel auxiliar que tem o proximo elemento livre do vetor
+                                                                    int numeroDoElementoLivreNoVetor=0;
 
-                                                                //calcula o total de todos os tipos de materiais que nos foram pedidos para colocar no carro
-                                                                //basicamente pega no vetor que contem todas as quantidades dos materiais que nos foram pedidos e soma tudo
-                                                                int quantidadeTotalDaExigida=0; //vai conter a quantidade de materiais que foram pedidos na expressao regular
-                                                                int quantidadeTotalDeMateriaisATransportarCopia = quantidadeTotalDeMateriaisATransportar; //usamos uma copia pois a variavel normal vai sendo alterada ao longo da execucao do programa
-                                                                bool used = false; //para verificar se a substracao da bateria e a localizacao ja foram atribuidas
-                                                                for(int i = 0; i < quantidadeMateriaisExigida; i++)
-                                                                {
+                                                                    //vetores auxiliares para armazenar os tipos de materiais e as quantidades desses materiais
+                                                                    char vetorAux[80][15] = {"\0"};
+                                                                    int quantidadesVetorAux[80] = {0,0};
 
-                                                                    quantidadeTotalDaExigida+=quantidadesVetorAux[i]; //incrementa a variavel
-                                                                    if ((quantidadeTotalDeMateriaisATransportarCopia + quantidadeTotalDaExigida )<= quantidadeMaximaTransporte) //se ainda nao ultrapassamos o limite do carro
-                                                                    {
-                                                                        if ((!used) && (localizacao != 2)) //se ainda nao foi feita atribuicao e se nao se encontra la
-                                                                        {   //se ele nao se encontra no armazem, coloca-o la e subtrai a quantidade de bateria da viagem
-                                                                        cargaBateriaCarro -= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
-                                                                        localizacao = 2;
-                                                                        }
-
-                                                                        //o i itera por todos os elementos do vetor que contem todos os materiais a serem transportados pelo carro
-                                                                        //o j itera sobre os materiais que nos foram pedidos para recolher
-                                                                        //se detectar que o material a ser iterado no momento ja se encontra no carro, entao incrementa o vetor das quantidades naquele indice em especifico com a quantidade
-                                                                        //e reseta a quantidade do material no vetor auxiliar/o material tambem, no vetor auxiliar
-                                                                        for (int j = 0; j < 80; j++)
+                                                                    //o metodo de funcionamento e parecido ao da ENTREGA, mas basicamente ele vai percorrer todos os caracteres e ao detectar um "(", mas tem que ter antes um "[" ou ","
+                                                                    //se isso se verificar ele guarda a posicao a seguir ao "(", que corresponde ao primeiro caracter do tipo de material em "ultimaPosicao"
+                                                                    //quando encontrar uma virgula que a seguir a ela nao aparece um "(", ele sabe que antes dessa virgula e o ultimo caracter do tipo de material
+                                                                    //entao ja sabemos, pegamos no indice antes da virgula usando o valor de "ultimaPosicao" conseguimos recortar a string correspondente ao tipo de material
+                                                                    //a seguir a isso, colocamos no "ultimaPosicao" o valor do indice a seguir á virgula, que corresponde ao primeiro caracter da quantidade do material
+                                                                    //ao detectar uma virgula antecedida por um ")" ou "]" antecedido por um ")", sabemos que antes do ")" esta o ultimo caracter da quantidade do material
+                                                                    //entao obtemos a quantidade desse material recorrendo a esse indice e ao valor da "ultimaPosicao"
+                                                                    if(strcmp(vetorAux1[1], "#") != 0)
+                                                                    {     
+                                                                        for(int i = 1 ; i < strlen(vetorAux1[1]); i++)
                                                                         {
-                                                                            if (strcmp(materiasATransportar[j],vetorAux[i]) == 0)
+                                                                            if ((vetorAux1[1][i-1]=='[' && vetorAux1[1][i]=='(' ) || ( vetorAux1[1][i-1] == ',' && vetorAux1[1][i]==' ' ))
                                                                             {
-                                                                                valueMateriasATransportar[j] += quantidadesVetorAux[i];
-                                                                                quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
-                                                                                strcpy(vetorAux[i], "\0");
-                                                                                quantidadesVetorAux[i] = 0;
+                                                                                    if (vetorAux1[1][i]=='(' )
+                                                                                        ultimaPosicao=i+1;
+                                                                                    else
+                                                                                        ultimaPosicao=i+2;
+                                                                            }
+                                                                            if (vetorAux1[1][i+1]!=' ' && vetorAux1[1][i]==',')
+                                                                            {
+                                                                                    strncpy(vetorAux[numeroDoElementoLivreNoVetor], (vetorAux1[1] + ultimaPosicao), i - ultimaPosicao);
+                                                                                    ultimaPosicao=i+1;
+                                                                            }
+                                                                            if (vetorAux1[1][i-1]==')' && (vetorAux1[1][i]==',' || (vetorAux1[1][i]==']')))
+                                                                            {
+                                                                                    char p[1][10] = {"\0"};
+                                                                                    strncpy(p[0], (vetorAux1[1] + ultimaPosicao), i - ultimaPosicao - 1);
+                                                                                    quantidadesVetorAux[numeroDoElementoLivreNoVetor++] = atoi(p[0]);
 
                                                                             }
                                                                         }
 
-                                                                        //visto que podem ter ficado no vetor auxiliar materiais que nao se encontravam anteriormente no carro, temos que os colocar la
-                                                                        //entao itero por todos os materiais que ficaram no vetor auxiliar
-                                                                        //se o valor do elemento for != \0, ele vai incluir no vetor dos materiais a transportar no carro esse material em questao e a quantidade correspondente
-                                                                        //ao fazer isso vai resetar os vetores auxiliares, tanto no nome do material como na quantidade desse material
-                                                                        //no final, vai alterar o valor da variavel que tem o indice do elemento vazio mais proximo do inicio do vetor, do vetor de materiais que estao no carro
-
-                                                                        if (vetorAux[i][0] != '\0')
+                                                                       //calcula o total de todos os tipos de materiais que nos foram pedidos para colocar no carro
+                                                                        //basicamente pega no vetor que contem todas as quantidades dos materiais que nos foram pedidos e soma tudo
+                                                                        int quantidadeTotalDaExigida=0; //vai conter a quantidade de materiais que foram pedidos na expressao regular
+                                                                        int quantidadeTotalDeMateriaisATransportarCopia = quantidadeTotalDeMateriaisATransportar; //usamos uma copia pois a variavel normal vai sendo alterada ao longo da execucao do programa
+                                                                        bool used = false; //para verificar se a substracao da bateria e a localizacao ja foram atribuidas
+                                                                        for(int i = 0; i < quantidadeMateriaisExigida; i++)
                                                                         {
-                                                                            strcpy(materiasATransportar[iteratorElementoLivreVetor],vetorAux[i]);
-                                                                            valueMateriasATransportar[iteratorElementoLivreVetor] = quantidadesVetorAux[i];
-                                                                            quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
-                                                                            strcpy(vetorAux[i],"");
-                                                                            quantidadesVetorAux[i] = 0;
-                                                                            iteratorElementoLivreVetor = indiceElementoLivreMaisProximo(materiasATransportar);
 
+                                                                            quantidadeTotalDaExigida+=quantidadesVetorAux[i]; //incrementa a variavel
+                                                                            if ((quantidadeTotalDeMateriaisATransportarCopia + quantidadeTotalDaExigida )<= quantidadeMaximaTransporte) //se ainda nao ultrapassamos o limite do carro
+                                                                            {
+                                                                                
+                                                                                //o i itera por todos os elementos do vetor que contem todos os materiais a serem transportados pelo carro
+                                                                                //o j itera sobre os materiais que nos foram pedidos para recolher
+                                                                                //se detectar que o material a ser iterado no momento ja se encontra no carro, entao incrementa o vetor das quantidades naquele indice em especifico com a quantidade
+                                                                                //e reseta a quantidade do material no vetor auxiliar/o material tambem, no vetor auxiliar
+                                                                                for (int j = 0; j < 80; j++)
+                                                                                {
+                                                                                    if (strcmp(materiasATransportar[j],vetorAux[i]) == 0)
+                                                                                    {
+                                                                                        valueMateriasATransportar[j] += quantidadesVetorAux[i];
+                                                                                        quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
+                                                                                        strcpy(vetorAux[i], "\0");
+                                                                                        quantidadesVetorAux[i] = 0;
+
+                                                                                    }
+                                                                                }
+
+                                                                                //visto que podem ter ficado no vetor auxiliar materiais que nao se encontravam anteriormente no carro, temos que os colocar la
+                                                                                //entao itero por todos os materiais que ficaram no vetor auxiliar
+                                                                                //se o valor do elemento for != \0, ele vai incluir no vetor dos materiais a transportar no carro esse material em questao e a quantidade correspondente
+                                                                                //ao fazer isso vai resetar os vetores auxiliares, tanto no nome do material como na quantidade desse material
+                                                                                //no final, vai alterar o valor da variavel que tem o indice do elemento vazio mais proximo do inicio do vetor, do vetor de materiais que estao no carro
+
+                                                                                if (vetorAux[i][0] != '\0')
+                                                                                {
+                                                                                    strcpy(materiasATransportar[iteratorElementoLivreVetor],vetorAux[i]);
+                                                                                    valueMateriasATransportar[iteratorElementoLivreVetor] = quantidadesVetorAux[i];
+                                                                                    quantidadeTotalDeMateriaisATransportar+=quantidadesVetorAux[i];
+                                                                                    strcpy(vetorAux[i],"");
+                                                                                    quantidadesVetorAux[i] = 0;
+                                                                                    iteratorElementoLivreVetor = indiceElementoLivreMaisProximo(materiasATransportar);
+
+                                                                                }
+
+
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                printf("\nNao e possivel colocar todos os materiais requisitados no carro\n");
+                                                                                i = quantidadeMateriaisExigida; //para o loop parar
+                                                                            }
                                                                         }
-
-
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        printf("\nNao e possivel colocar todos os materiais requisitados no carro\n");
-                                                                        i = quantidadeMateriaisExigida; //para o loop parar
-                                                                    }
+                                                                    numManutencao=quantidades[1];
+                                                                    printInfo(true);
+                                                                    printf("\n");
                                                                 }
-                                                                numManutencao=quantidades[1];
-                                                                }else{
-                                                                    printf("INIT-ESTADO%s - INVALIDA\n", $2);
-                                                                    printf("LOCALIZACAO INVALIDA!!!\n");
+                                                                else
+                                                                {
+                                                                    printf("INIT-ESTADO(%s,%d,%s,%d) - INVALIDA\n", $3,$5,$7,$9);
+                                                                    if(localizacaoInvalida)
+                                                                        printf("LOCALIZACAO INVALIDA!!!\n");
+                                                                    if(quantidadeInvalida)
+                                                                        printf("BATERIA INVALIDA!!!\n");
+                                                                    printf("\n");
                                                                 }
-                                                                printInfo(true);
                                                                 }
                                                                 ;
 
 instrucoes : /*vazio*/
-           | instrucoes instrucao ';'
+           |  instrucaoINIT instrucoesS /*alterei antes o ; nao existia mas assim garante que tem que ter o ;*/
+           |  instrucao instrucoesS
            ;
+instrucoesS : /*vazio*/
+            | instrucoesS ';' instrucao
+            ;
 
-instrucao : MANUTENCAO {
-                                                if(1)
+instrucao : MANUTENCAO '(' Q ')' {
+                                                if($3 >= 0 && $3 <= 2)
                                                 {
-                                                    if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
+                                                    
                                                     //imprime o estado inicial do carro
                                                     printInfo(false);
                                                     //imprime a instrucao passada
                                                     printf("----------------------\n");
-                                                    printf("|   %s    |\n",$1);
+                                                    printf("|   %s(%d)    |\n",$1,$3);
                                                     printf("----------------------\n");
 
                                                     //se o carro tiver carga suficiente para ir a manutencao, ou se ja estiver na manutencao
-                                                    if (cargaBateriaCarro >= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar) || localizacao == 0)
+                                                    if (cargaBateriaCarro >= (10 + 1 * quantidadeTotalDeMateriaisATransportar) || localizacao == 0)
                                                     {
                                                         //incrementa o contador de vezes que foi a manutencao
                                                         numManutencao++;
@@ -328,7 +312,7 @@ instrucao : MANUTENCAO {
                                                         if (localizacao != 0)
                                                         {
                                                             localizacao=0;
-                                                            cargaBateriaCarro-=(10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                                                            cargaBateriaCarro-=(10 + 1 * quantidadeTotalDeMateriaisATransportar);
                                                         }
 
                                                         //se o contador de vezes que foi a manutencao for igual a 3, apresenta um erro
@@ -346,17 +330,18 @@ instrucao : MANUTENCAO {
                                                     }
                                                     //imprimir o estado final do carro
                                                     printInfo(true);
-                                                    printf("\n");
+                                                    printf("\n\n");
                                                     //retornar ao contexto inicial
                                      			}
                                      			else
                                      			{
-                                                    printf("%s - INVALIDA\n\n",$1);
+                                                    printf("%s(%d) - INVALIDA\n\n",$1, $3);
                                                 }
 
                                      			}
-          | CARREGA_BATERIA '(' Q ')'  { if($3 >= 0 && $3 <= 2){
-                                                    if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
+          | CARREGA_BATERIA '(' Q ')'  {        if($3 >= 0 && $3 <= 2)
+                                                {
+                                                   
                                                        //imprime o estado inicial do carro
                                            			printInfo(false);
                                            			//imprime a instrucao passada
@@ -364,7 +349,7 @@ instrucao : MANUTENCAO {
                                            			printf("|  CARREGA-BATERIA(%d)  |\n", $3);
                                            			printf("------------------------\n");
                                            			//variavel que tem a quantidade necessaria de bateria para o trajeto
-                                           			float quantidadeBateriaNecessaria = (10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                                           			float quantidadeBateriaNecessaria = (10 + 1 * quantidadeTotalDeMateriaisATransportar);
 
                                                        //se ele tem carga suficiente para fazer o trajeto e a sua bateria nao esta a 100%
                                            			if ((cargaBateriaCarro >= quantidadeBateriaNecessaria) && (cargaBateriaCarro != 100))
@@ -373,7 +358,7 @@ instrucao : MANUTENCAO {
                                            				cargaBateriaCarro -= quantidadeBateriaNecessaria;
                                            		    	//carro vai para o posto de carregamento
                                            		    	localizacao=1;
-                                                           //variavel com a carga da bateria do carro e colocada a 100%
+                                                        //variavel com a carga da bateria do carro e colocada a 100%
                                            		    	cargaBateriaCarro=100;
                                            			}
                                            			else
@@ -387,14 +372,47 @@ instrucao : MANUTENCAO {
                                            			}
                                            			//imprimir o estado final do carro
                                                     printInfo(true);
+                                                    printf("\n\n");
                                                     //retornar ao contexto inicial
-                                                    }
-                                                    else
-                                                    {printf("CARREGA-BATERIA(%d) - INVALIDA\n\n", $3);}
-                                                       }
-          | ENTREGA LMQ   {
-                                                            if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
-                                                            if (1){
+                                                }
+                                                else
+                                                {
+                                                    printf("CARREGA-BATERIA(%d) - INVALIDA\n\n", $3);
+                                                }
+                                        }
+          | ENTREGA '(' M ',' M ',' Q ')' {
+                                                            //validar a linha de entrega
+                                                            //se usasse o L aqui ia dar ambiguidade com o M, visto que o M engloba o L entao usasse o M e verificasse se esta correto
+                                                            bool materialValido = false;
+                                                            bool quantidadeMaterialValida = false;
+                                                            bool linhaDeMontagemValida = false;
+
+                                                            char linhaEntregaAux[100] = {'\0'};
+                                                            char numeroLinhaMontagemEmChar[100] = {'\0'};
+                                                            int numeroLinhaMontagem=0;
+                                                            strncpy(linhaEntregaAux, $3, strlen($3));
+
+                                                            if((linhaEntregaAux[0] >= 'A' && linhaEntregaAux[0] <= 'Z') && (linhaEntregaAux[1] >= 'A' && linhaEntregaAux[1] <= 'Z'))
+                                                            {
+                                                                for(int i = 2 ; linhaEntregaAux[i] != '\0'; i++)
+                                                                {
+                                                                    numeroLinhaMontagemEmChar[i-2] = linhaEntregaAux[i];
+                                                                }
+                                                                numeroLinhaMontagem = atoi(numeroLinhaMontagemEmChar);
+                                                                if (numeroLinhaMontagem >= 1 && numeroLinhaMontagem <= 100)
+                                                                {
+                                                                    linhaDeMontagemValida = true;
+                                                                }
+                                                            }
+                                                            if(strlen($5) == 5)
+                                                                materialValido = true;
+                                                            if ($7 > 0)
+                                                                quantidadeMaterialValida = true;
+
+
+
+
+                                                            if (materialValido && quantidadeMaterialValida && linhaDeMontagemValida){
                                                                //variavel que vai conter se o carro tem carga suficiente para o trajeto, se tiver fica a true, se nao false, mas e inicializada com false
                                                                bool cargaBateriaSuficiente = false;
                                                                //imprimir estado inicial do carro
@@ -405,7 +423,7 @@ instrucao : MANUTENCAO {
                                                                {
                                                                    printf("-");
                                                                }
-                                                               printf("\n|  ENTREGA(%s)  |\n", $2);
+                                                               printf("\n|  ENTREGA(%s,%s,%d)  |\n", $3, $5, $7);
                                                                for(int i = 0; i < 30; i++)
                                                                {
                                                                    printf("-");
@@ -418,19 +436,19 @@ instrucao : MANUTENCAO {
                                                                //se o carro nao estiver em alguma linha de montagem, a quantidade de bateria necessaria e atribuida a variavel reponsavel e se o carro tiver mais ou igual a esse valor,
                                                                //a variavel cargaBateriaSuficiente e colocada como verdade
                                                                if (localizacao == 3) {
-                                                                   quantidadeBateriaNecessaria = (5  + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                                                                   quantidadeBateriaNecessaria = (5  + 1 * quantidadeTotalDeMateriaisATransportar);
                                                                    if (cargaBateriaCarro >= quantidadeBateriaNecessaria)
                                                                        cargaBateriaSuficiente = true; //tem carga suficiente
 
                                                                } else {
-                                                                   quantidadeBateriaNecessaria = (10  + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                                                                   quantidadeBateriaNecessaria = (10  + 1 * quantidadeTotalDeMateriaisATransportar);
                                                                    if (cargaBateriaCarro >= quantidadeBateriaNecessaria)
                                                                        cargaBateriaSuficiente = true; //tem carga suficiente
 
                                                                }
 
                                                                //se o carro tem carga suficiente para ir para o local
-                                                               if (cargaBateriaSuficiente) {
+                                                                if (cargaBateriaSuficiente) {
 
                                                                     //primeiro temos que obter o material que foi passado para a instrucao e a respetiva quantidade desse material
                                                                     //variavel auxiliar para a filtragem de informacao
@@ -440,32 +458,8 @@ instrucao : MANUTENCAO {
                                                                     char tipoMaterialDesejado[6] = "\0";
                                                                     int quantidadeMaterialDesejado;
 
-                                                                    //para cada caracter da expressao passada, quando ele encontrar a primeira virgula, ele sabe que a frente dela comeca o caracter do tipo de material,
-                                                                    //entao marco a posicao desse caracter, ou seja, do caracter de inicio do tipo de material, na variavel "ultimaPosicao"
-                                                                    //quando encontrar outra virgula, sendo a segunda vez que encontro virgulas, sabemos que atras da virgula e o ultimo caracter do tipo de material,
-                                                                    //entao colocamos no vetor "tipoMaterialDesejado" essa string que comeca no valor que esta armazenado em ultimaPosicao, ate a posicao que foi detectada agora, ou seja,
-                                                                    //antes da segunda virgula e assim obtemos o tipo de material, para a quantidade desse material, guardamos a posicao depois da 2 virgula na variavel "ultimaPosicao"
-                                                                    //e quando detectarmos um ")", sabemos que antes desse parentises e o ultimo caracter da quantidade de material, entao é so recortar da string desde "ultimaPosicao" ate antes do ")"
-                                                                    for (int i = 0; i < strlen($2); i++) //vai colocar nos vetores as informacoes correspondentes
-                                                                    {
-                                                                        if (($2[i] == ',') && (ultimaPosicao == -1)) {
-                                                                            ultimaPosicao = i + 1;
-                                                                        }
-                                                                        else if (($2[i] == ',') && (ultimaPosicao != -1)) {
-                                                                            //colocamos no vetor o tipo de material obtido
-                                                                            strncpy(tipoMaterialDesejado, ($2 + ultimaPosicao), i - ultimaPosicao);
-                                                                            ultimaPosicao = i + 1;
-                                                                        }
-                                                                        else if ($2[i] == ')') {
-                                                                            //colocamos na variavel a quantidade do tipo de material
-                                                                            char p[100] = "\0";
-                                                                            strncpy(p, ($2 + ultimaPosicao), i - ultimaPosicao);
-                                                                            quantidadeMaterialDesejado = atoi(p);
-
-                                                                        }
-                                                                    }
-                                                                    //REMOVER - printf("\nMaterial desejado - %s/%d\n", tipoMaterialDesejado, quantidadeMaterialDesejado);
-
+                                                                    strncpy(tipoMaterialDesejado, ($5), strlen($5));
+                                                                    quantidadeMaterialDesejado = $7;
 
                                                                    //obtemos o indice do material no vetor que contem todos os materiais que o carro transporta
                                                                    int indiceMaterialNoVetor = procurarMaterialNoCarro(tipoMaterialDesejado,materiasATransportar);
@@ -511,18 +505,26 @@ instrucao : MANUTENCAO {
                                                                }
                                                                 //imprimir estado final do carro
                                                                printInfo(true);
-                                                               printf("\n");
+                                                               printf("\n\n");
                                                                 //retornar ao contexto inicial
                                                                 
                                                             }
                                                             else
                                                             {
-                                                                    printf("ENTREGA(%s) - INVALIDA\n", $2);
+                                                                    printf("\n|  ENTREGA(%s,%s,%d)  - INVALIDA|\n", $3, $5, $7);
+                                                                    if(!materialValido)
+                                                                        printf("Material Invalido\n");
+                                                                    if(!quantidadeMaterialValida)
+                                                                        printf("Quantidade de Material Invalida\n");
+                                                                    if(!linhaDeMontagemValida)
+                                                                        printf("Linha de Montagem Invalida\n");
+                                                                    printf("\n");
+
                                                             }
                                                             }
 
 
-          | RECOLHE LISTA   {               if (palavraInvalida[iteratorPalavra][0] != '\0') {iteratorPalavra++;iteratorLetra = 0;}
+          | RECOLHE LISTA   {               
                                             //imprimir estado inicial do carro
                                             printInfo(false);
                                             //imprime a instrucao passada
@@ -537,7 +539,7 @@ instrucao : MANUTENCAO {
                                             }
                                             printf("\n");
                                             //se o carro tem bateria suficiente ou se ja se encontrar no armazem, pode seguir em frente
-                                            if (cargaBateriaCarro >= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar) || (localizacao == 2))
+                                            if (cargaBateriaCarro >= (11) || (localizacao == 2))
                                             {
                                                 //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
                                                 int quantidadeMateriaisExigida = contarCaracterNoVetor($2,strlen($2),'(') - 1;
@@ -595,7 +597,7 @@ instrucao : MANUTENCAO {
                                                     {
                                                         if ((!used) && (localizacao != 2)) //se ainda nao foi feita atribuicao e se nao se encontra la
                                                         {   //se ele nao se encontra no armazem, coloca-o la e subtrai a quantidade de bateria da viagem
-                                                        cargaBateriaCarro -= (10 + 0.01 * quantidadeTotalDeMateriaisATransportar);
+                                                        cargaBateriaCarro -= (10 + 1 * quantidadeTotalDeMateriaisATransportar);
                                                         localizacao = 2;
                                                         }
 
@@ -629,10 +631,7 @@ instrucao : MANUTENCAO {
                                                             strcpy(vetorAux[i],"");
                                                             quantidadesVetorAux[i] = 0;
                                                             iteratorElementoLivreVetor = indiceElementoLivreMaisProximo(materiasATransportar);
-
                                                         }
-
-
                                                     }
                                                     else
                                                     {
@@ -649,7 +648,7 @@ instrucao : MANUTENCAO {
                                             }
                                             //imprimir estado final do carro
                                             printInfo(true);
-                                            printf("\n");
+                                            printf("\n\n");
                                             //retornar ao contexto inicial
                                             
             }
@@ -661,15 +660,8 @@ instrucao : MANUTENCAO {
                                             			printInfo(false);
                                                         //imprime a instrucao passada
                                                         printf("\n------------------\n");
-                                                        printf("|  ESTADO(");
-                                                        if(letrasEstadosPossiveis[0] != '\0')
-                                                            printf("%c",letrasEstadosPossiveis[0]);
-                                                        if(letrasEstadosPossiveis[1] != '\0')
-                                                            printf(",%c",letrasEstadosPossiveis[1]);
-                                                        if(letrasEstadosPossiveis[2] != '\0')
-                                                            printf(",%c",letrasEstadosPossiveis[2]);
-                                                        printf(")  |\n");
-                                                        printf("------------------\n");
+                                                        printf("|  ESTADO(%s) |\n", $3);
+                                                        printf("------------------");
 
                                                         //opcoes disponiveis que podemos passar para o ESTADO()
                                                         char options[3] = {'B','T','M'};
@@ -683,7 +675,7 @@ instrucao : MANUTENCAO {
                                                             //ESTADO(B) -> B ta no 7 lugar, se for com 2 letras, ESTADO(T,B) -> B ta no 9 lugar, e ESTADO(T,M,B) -> B ta no 11 lugar
                                                             //se o if verificar o B em algum desses lugares, vai definir que encontrou a letras
                                                             //se o B se mantivesse na 1 posicao quando passamos mais de que uma letras, ia definir igual pois a 7 posicao ia ser o B
-                                                            if (letrasEstadosPossiveis[0] == options[i] || letrasEstadosPossiveis[1] == options[i] || letrasEstadosPossiveis[2] == options[i])
+                                                            if ($3[0] == options[i] || $3[2] == options[i] || $3[4] == options[i])
                                                                 found[i] = true;
                                                         }
 
@@ -696,16 +688,16 @@ instrucao : MANUTENCAO {
                                                             for(int i = 0; i< 80; i++)
                                                             {
                                                                 if(materiasATransportar[i][0] != '\0')
-                                                                    printf("\n\tMaterial %s - Quantidade %d", materiasATransportar[i], valueMateriasATransportar[i]);
+                                                                    printf("\tMaterial %s - Quantidade %d", materiasATransportar[i], valueMateriasATransportar[i]);
                                                             }
-                                                            printf("Quantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
+                                                            printf("\nQuantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
                                                         }
                                                         if (found[1] == true) //Se encontrou o T
                                                             printf("TAREFAS PENDENTES: NENHUMA\n");
                                             			printf("\n");
                                                         //imprimir estado inicial do carro
                                                         printInfo(true);
-                                            			printf("\n");
+                                            			printf("\n\n");
                                             			iteratorLetraEstado=0; //resetar iterador das letras do vetor com cada uma das letras passadas para a espressao estado
                                             			}
                                                                 
@@ -718,13 +710,14 @@ int main() {
     yyparse();
     yylex();
     if (nerros == 0) {
-        printf("FRASE É VÁLIDA!!!");
+        printf("\nFicheiro de Entrada É VÁLIDO!!!");
     } else {
-        printf("FRASE É INVÁLIDA!!! com %d erros", nerros);
+        printf("\nFicheiro de Entrada É INVÁLIDO!!! com %d erros", nerros);
     }
 }
 
 int yyerror(char *s) {
     nerros ++;
+    printf ( "erro sintatico/semantico : %s\n",s);
     return 0;
 }
