@@ -162,7 +162,7 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
                                                                     {
                                                                         printf("-");
                                                                     }
-                                                                    printf("\n|   INIT-ESTADO(%s,%d,%s,%d)  |\n", $3,$5,$7,$9);
+                                                                    printf("\n|   INIT-ESTADO(%s,%d,%s,%d)   |\n", $3,$5,$7,$9);
                                                                     for(int i = 0; i < 20 + 6 + strlen($3) + strlen($7); i++)
                                                                     {
                                                                         printf("-");
@@ -171,7 +171,7 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
 
                                                                     cargaBateriaCarro = quantidades[0];
                                                                     //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
-                                                                    int quantidadeMateriaisExigida = contarCaracterNoVetor(vetorAux1[1],strlen(vetorAux1[1]),'(') - 1;
+                                                                    int quantidadeMateriaisExigida = contarCaracterNoVetor(vetorAux1[1],strlen(vetorAux1[1]),'(');
 
                                                                     //variavel auxiliar para a filtragem de informacao
                                                                     int ultimaPosicao=0;
