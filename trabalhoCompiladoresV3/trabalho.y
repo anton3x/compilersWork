@@ -25,19 +25,6 @@
     char materiasATransportar[80][6] = {};
     //vetor que armazena a quantidade de pecas de todos os tipos de materiais que o carro esta a transportar, a posicao 0 deste vetor corresponde ao material indice 0 do vetor acima.
     int valueMateriasATransportar[80] = {0};
-    //vetor com todos os contextos possiveis
-    char contexto[6][16] = {"MANUTENCAO", "CARREGA-BATERIA", "RECOLHE", "ENTREGA", "ESTADO", "INITIAL"};
-    //variavel que armazena um valor entre 0 e 5, sendo 0 a "MANUTENCAO" e 5 o "INITIAL"
-    int contextoAtual = 5;
-    //vetor que armazena 0 ou 1 para cada elemento, e cada elemento corresponde a um CONTEXTO
-    int contextosUsados[6] = {0};
-    //vetor que vai armazenar as expressoes passados pelo ficheiro que se encontram invalidas
-    //char palavraInvalida[1000][1000] = {"\0","\0"};
-    //variavel que tem o indice do elemento do vetor, neste caso, a letra desse elemento, que esta livre
-    //int iteratorLetra = 0;
-    //variavel que tem o indice do elemento do vetor que esta livre
-    int iteratorPalavra = 0;
-    //variavel que contem o indice do vetor de materiais do elemento livre mais proximo da origem
     int iteratorElementoLivreVetor = 0;
 
 
@@ -114,7 +101,6 @@
 
 %start program
 %token <letras> MANUTENCAO CARREGA_BATERIA ENTREGA RECOLHE ESTADO INIT_ESTADO INICIO_DAS_INSTRUCOES FINAL_DAS_INSTRUCOES LISTA I LOCALIZACAO M LISTA_1
-%token <inteiro> Q
 
 
 
@@ -124,15 +110,15 @@
 program : INICIO_DAS_INSTRUCOES '{' instrucoes '}' FINAL_DAS_INSTRUCOES 
         ;
 
-instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         { 
+instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' M ',' LISTA_1 ',' M ')'         { 
                                                                 bool usados[4] = {false, false,false,false};
                                                                 char vetorAux1[2][1000] = {"\0"};
                                                                 int quantidades[2] = {0,0};
                                                                 int ultimaPosicao1 = 0;
                                                                 strncpy(vetorAux1[0], $3, strlen($3));
                                                                 strncpy(vetorAux1[1], $7, strlen($7));
-                                                                quantidades[0] = $5;
-                                                                quantidades[1] = $9;
+                                                                quantidades[0] = atoi($5);
+                                                                quantidades[1] = atoi($9);
                                                                 
                                                                 /*vetorAux1[0] - localizacao inicial
                                                                   vetorAux1[1] - lista de materiais
@@ -141,7 +127,7 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
                                                                 
                                                                 */
 
-                                                                bool localizacaoInvalida = true, quantidadeInvalida = true;
+                                                                bool localizacaoInvalida = true, quantidadeInvalida = true, numManutencaoInvalido = true;
                                                                 int numLocalizacao = -1;
                                                                 for(int i = 0; i < 4; i++)
                                                                 { 
@@ -151,10 +137,13 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
                                                                         localizacaoInvalida = false;
                                                                     }
                                                                 }
-                                                                if($5 >= 0 && $5 <= 100)
+                                                                if(atoi($5) >= 0 && atoi($5) <= 100)
                                                                     quantidadeInvalida = false;
 
-                                                                if (!localizacaoInvalida && !quantidadeInvalida)
+                                                                if(atoi($9) >= 0)
+                                                                    numManutencaoInvalido = false;
+
+                                                                if (!localizacaoInvalida && !quantidadeInvalida && !numManutencaoInvalido)
                                                                 {
                                                                     printInfo(false);
                                                                     localizacao=numLocalizacao;
@@ -162,7 +151,7 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
                                                                     {
                                                                         printf("-");
                                                                     }
-                                                                    printf("\n|   INIT-ESTADO(%s,%d,%s,%d)   |\n", $3,$5,$7,$9);
+                                                                    printf("\n|   INIT-ESTADO(%s,%s,%s,%s)   |\n", $3,$5,$7,$9);
                                                                     for(int i = 0; i < 20 + 6 + strlen($3) + strlen($7); i++)
                                                                     {
                                                                         printf("-");
@@ -274,11 +263,14 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' Q ',' LISTA_1 ',' Q ')'         
                                                                 }
                                                                 else
                                                                 {
-                                                                    printf("INIT-ESTADO(%s,%d,%s,%d) - INVALIDA\n", $3,$5,$7,$9);
+                                                                    printf("INIT-ESTADO(%s,%s,%s,%s) - INVALIDA\n", $3,$5,$7,$9);
                                                                     if(localizacaoInvalida)
                                                                         printf("LOCALIZACAO INVALIDA!!!\n");
                                                                     if(quantidadeInvalida)
                                                                         printf("BATERIA INVALIDA!!!\n");
+                                                                    if(numManutencaoInvalido)
+                                                                        printf("NUMERO DE MANUTENCAO INVALIDO!!!\n");
+
                                                                     printf("\n");
                                                                 }
                                                                 }
@@ -292,15 +284,15 @@ instrucoesS : /*vazio*/
             | instrucoesS ';' instrucao
             ;
 
-instrucao : MANUTENCAO '(' Q ')' {
-                                                if($3 >= 0 && $3 <= 2)
+instrucao : MANUTENCAO '(' M ')' {
+                                                if((atoi($3) >= 0 && atoi($3) <= 2) && (strlen($3) == 1))
                                                 {
                                                     
                                                     //imprime o estado inicial do carro
                                                     printInfo(false);
                                                     //imprime a instrucao passada
                                                     printf("----------------------\n");
-                                                    printf("|   %s(%d)    |\n",$1,$3);
+                                                    printf("|   %s(%s)    |\n",$1,$3);
                                                     printf("----------------------\n");
 
                                                     //se o carro tiver carga suficiente para ir a manutencao, ou se ja estiver na manutencao
@@ -335,18 +327,18 @@ instrucao : MANUTENCAO '(' Q ')' {
                                      			}
                                      			else
                                      			{
-                                                    printf("%s(%d) - INVALIDA\n\n",$1, $3);
+                                                    printf("%s(%s) - INVALIDA\n\n",$1, $3);
                                                 }
 
                                      			}
-          | CARREGA_BATERIA '(' Q ')'  {        if($3 >= 0 && $3 <= 2)
+          | CARREGA_BATERIA '(' M ')'  {        if((atoi($3) >= 0 && atoi($3) <= 2) && (strlen($3) == 1))
                                                 {
                                                    
-                                                       //imprime o estado inicial do carro
+                                                    //imprime o estado inicial do carro
                                            			printInfo(false);
                                            			//imprime a instrucao passada
                                            			printf("------------------------\n");
-                                           			printf("|  CARREGA-BATERIA(%d)  |\n", $3);
+                                           			printf("|  CARREGA-BATERIA(%s)  |\n", $3);
                                            			printf("------------------------\n");
                                            			//variavel que tem a quantidade necessaria de bateria para o trajeto
                                            			float quantidadeBateriaNecessaria = (10 + 1 * quantidadeTotalDeMateriaisATransportar);
@@ -377,10 +369,10 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                 }
                                                 else
                                                 {
-                                                    printf("CARREGA-BATERIA(%d) - INVALIDA\n\n", $3);
+                                                    printf("CARREGA-BATERIA(%s) - INVALIDA\n\n", $3);
                                                 }
                                         }
-          | ENTREGA '(' M ',' M ',' Q ')' {
+          | ENTREGA '(' M ',' M ',' M ')' {
                                                             //validar a linha de entrega
                                                             //se usasse o L aqui ia dar ambiguidade com o M, visto que o M engloba o L entao usasse o M e verificasse se esta correto
                                                             bool materialValido = false;
@@ -389,7 +381,7 @@ instrucao : MANUTENCAO '(' Q ')' {
 
                                                             char linhaEntregaAux[100] = {'\0'};
                                                             char numeroLinhaMontagemEmChar[100] = {'\0'};
-                                                            int numeroLinhaMontagem=0;
+                                                            int numeroLinhaMontagem=0; //LM035
                                                             strncpy(linhaEntregaAux, $3, strlen($3));
 
                                                             if((linhaEntregaAux[0] >= 'A' && linhaEntregaAux[0] <= 'Z') && (linhaEntregaAux[1] >= 'A' && linhaEntregaAux[1] <= 'Z'))
@@ -404,13 +396,12 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                                     linhaDeMontagemValida = true;
                                                                 }
                                                             }
+
                                                             if(strlen($5) == 5)
                                                                 materialValido = true;
-                                                            if ($7 > 0)
+
+                                                            if (atoi($7) > 0)
                                                                 quantidadeMaterialValida = true;
-
-
-
 
                                                             if (materialValido && quantidadeMaterialValida && linhaDeMontagemValida){
                                                                //variavel que vai conter se o carro tem carga suficiente para o trajeto, se tiver fica a true, se nao false, mas e inicializada com false
@@ -423,7 +414,7 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                                {
                                                                    printf("-");
                                                                }
-                                                               printf("\n|  ENTREGA(%s,%s,%d)  |\n", $3, $5, $7);
+                                                               printf("\n|  ENTREGA(%s,%s,%s)  |\n", $3, $5, $7);
                                                                for(int i = 0; i < 30; i++)
                                                                {
                                                                    printf("-");
@@ -459,7 +450,7 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                                     int quantidadeMaterialDesejado;
 
                                                                     strncpy(tipoMaterialDesejado, ($5), strlen($5));
-                                                                    quantidadeMaterialDesejado = $7;
+                                                                    quantidadeMaterialDesejado = atoi($7);
 
                                                                    //obtemos o indice do material no vetor que contem todos os materiais que o carro transporta
                                                                    int indiceMaterialNoVetor = procurarMaterialNoCarro(tipoMaterialDesejado,materiasATransportar);
@@ -511,14 +502,22 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                             }
                                                             else
                                                             {
-                                                                    printf("\n|  ENTREGA(%s,%s,%d)  - INVALIDA|\n", $3, $5, $7);
+                                                                    for(int i = 0; i < 39; i++)
+                                                                    {
+                                                                        printf("-");
+                                                                    }
+                                                                    printf("\n|  ENTREGA(%s,%s,%s)  - INVALIDA|\n", $3, $5, $7);
+                                                                    for(int i = 0; i < 39; i++)
+                                                                    {
+                                                                        printf("-");
+                                                                    }printf("\n");
                                                                     if(!materialValido)
                                                                         printf("Material Invalido\n");
                                                                     if(!quantidadeMaterialValida)
                                                                         printf("Quantidade de Material Invalida\n");
                                                                     if(!linhaDeMontagemValida)
                                                                         printf("Linha de Montagem Invalida\n");
-                                                                    printf("\n");
+                                                                    printf("\n\n\n");
 
                                                             }
                                                             }
@@ -539,7 +538,7 @@ instrucao : MANUTENCAO '(' Q ')' {
                                             }
                                             printf("\n");
                                             //se o carro tem bateria suficiente ou se ja se encontrar no armazem, pode seguir em frente
-                                            if (cargaBateriaCarro >= (11) || (localizacao == 2))
+                                            if (cargaBateriaCarro >= (10 + 1 * quantidadeTotalDeMateriaisATransportar) || (localizacao == 2))
                                             {
                                                 //variavel que armazena a quantidade de tipos de materiais diferentes que sao passados para a expressao
                                                 int quantidadeMateriaisExigida = contarCaracterNoVetor($2,strlen($2),'(') - 1;
@@ -688,9 +687,9 @@ instrucao : MANUTENCAO '(' Q ')' {
                                                             for(int i = 0; i< 80; i++)
                                                             {
                                                                 if(materiasATransportar[i][0] != '\0')
-                                                                    printf("\tMaterial %s - Quantidade %d", materiasATransportar[i], valueMateriasATransportar[i]);
+                                                                    printf("\tMaterial %s - Quantidade %d\n", materiasATransportar[i], valueMateriasATransportar[i]);
                                                             }
-                                                            printf("\nQuantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
+                                                            printf("Quantidade de peças a transportar: %d\n", quantidadeTotalDeMateriaisATransportar);
                                                         }
                                                         if (found[1] == true) //Se encontrou o T
                                                             printf("TAREFAS PENDENTES: NENHUMA\n");
