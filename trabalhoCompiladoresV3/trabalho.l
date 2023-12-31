@@ -39,5 +39,3 @@ ESTADO      {return ESTADO;}
 .                   { printf("Erro lexico: simbolo desconhecido ->%s<- \n ", yytext);return yytext[0];}
 <<EOF>>             { return 0;}
 %%
-<<EOF>>             { return 0;}
-%%
