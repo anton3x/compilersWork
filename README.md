@@ -1,4 +1,4 @@
-# compilersWork
+# Compilers Project
 Overview
 Welcome to the Compilers project, a practical exercise split into three parts designed for the 1st semester of the 2nd year of Computer Engineering. This project focuses on developing a set of regular expressions and finite automata to enable communication with an autonomous electric vehicle in the Compiling&Building factory.
 
