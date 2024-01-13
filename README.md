@@ -5,7 +5,6 @@
 Welcome to the Compilers project, a practical exercise split into three parts designed for the 1st semester of the 2nd year of Computer Engineering. This project focuses on developing a set of regular expressions and finite automata to enable communication with an autonomous electric vehicle in the Compiling&Building factory.
 
 ## Part 1 - Practical Work
-
 ### Assignment Details:
 
 - **Objective:**
@@ -18,17 +17,23 @@ Welcome to the Compilers project, a practical exercise split into three parts de
   4. **PICKUP(LIST):** Instructs the vehicle to pick up materials from the warehouse.
   5. **STATUS(I):** Instructs the vehicle to communicate its current state.
 
-- **Submission:**
-  - Groups of 3 members.
-  - Each task has a score of 2 points.
-  - Deadline: October 20, 2023, 11:59 PM (submitted as a single PDF on Moodle).
-  - Demonstration and explanation to the Professor during PL classes in the week following the submission (5 minutes per group).
+## Part 2 - Practical Work
+### Assignment Details:
 
-## Part 2 and Part 3
+- **Objective:**
+  Design a lexical analyzer using LEX/FLEX for the set of instructions related to the autonomous vehicle.
 
-*Details for Part 2 and Part 3 will be provided separately.*
+- **Tasks:**
+  1. Identify a set of instructions for communication with the vehicle.
+  2. Trigger corresponding actions for each instruction, updating and printing the vehicle's state.
+  3. Validate irregular situations and raise alerts when they occur.
+  4. Print the final state of the vehicle.
+
+**Part 3**
+Details for Part 3 will be provided separately.
 
 Stay tuned for updates and additional instructions as you progress through each part of the project. Feel free to reach out to your instructor for any clarifications or assistance.
 
 Happy coding! 🚀
+
 
