@@ -30,7 +30,7 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   4. **Error Handling:** Validate irregular situations and raise alerts when they occur.
   5. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
 - **How To Use:**
-    #### Prerequisites
+    ```bash#### Prerequisites
     Ensure you have [LEX/FLEX](flex-link) installed on your system.
     
     #### Building and Running
@@ -42,7 +42,7 @@ Welcome to the Compilers project, a comprehensive practical project split into t
     ./scriptV2.sh projectV2
     
     ##### Run the program with the input file provided:
-    ./a.out fileForTestingV2.txt
+    ./a.out fileForTestingV2.txt```
 
 ## Part 3 - Syntactic Analysis
 ### Assignment Details:
