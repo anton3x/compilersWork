@@ -1,5 +1,5 @@
 START-OF-INSTRUCTIONS {
- INIT-STATE(Posto de Manutencao,70,#,0);
+ INIT-STATE(Maintenance Station,70,#,0);
  CHARGE-BATTERY(0);
  PICKUP([(A4gt6,40), (12dF3,10)]);
  CHARGE-BATTERY(0);
