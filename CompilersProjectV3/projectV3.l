@@ -25,12 +25,12 @@ PICKUP     { return PICKUP; }
 INIT-STATE { return INIT_STATE; }
 STATUS      {return STATUS;}
 
-{LOCATION} {yylval.letras=strdup(yytext);return LOCATION;}
-\(\[{LIST}\]\)       {yylval.letras=strdup(yytext);return LIST;}
-\[{LIST}\]|"#"       {yylval.letras=strdup(yytext);return LIST_1;}
+{LOCATION} {yylval.letters=strdup(yytext);return LOCATION;}
+\(\[{LIST}\]\)       {yylval.letters=strdup(yytext);return LIST;}
+\[{LIST}\]|"#"       {yylval.letters=strdup(yytext);return LIST_1;}
 
-{M}           {yylval.letras=strdup(yytext);return M;}             
-{I}            {yylval.letras=strdup(yytext);return I;}
+{M}           {yylval.letters=strdup(yytext);return M;}
+{I}            {yylval.letters=strdup(yytext);return I;}
 [\{\}\;\(\)\,]     {return yytext[0];}
 
 [ \t \n \r]+
