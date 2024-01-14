@@ -43,6 +43,6 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   4. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
   5. **Additional Instruction:** Handle a new instruction for initializing the vehicle's state.
 
-**Stay tuned for updates and additional instructions as you progress through each part of the project. Feel free to reach out to your instructor for any clarifications or assistance.**
+**Stay tuned for updates and additional instructions as you progress through each part of the project. Feel free to reach me out for any clarifications or assistance.**
 
 Happy coding! 🚀
