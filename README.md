@@ -29,6 +29,7 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   3. **Action Triggers:** Implement actions for each recognized instruction to update and print the vehicle's state.
   4. **Error Handling:** Validate irregular situations and raise alerts when they occur.
   5. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
+
 - **How To Use:**
     ```bash
      #Prerequisites:
@@ -38,13 +39,13 @@ Welcome to the Compilers project, a comprehensive practical project split into t
      #Building and Running
     
      #Navigate to the CompilersProjectV2 directory:
-    cd CompilersProjectV2
+     cd CompilersProjectV2
     
      #Compile the lexical analyzer using this shell script:
-    ./scriptV2.sh projectV2
+     ./scriptV2.sh projectV2
     
      #Run the program with the input file provided:
-    ./a.out fileForTestingV2.txt
+     ./a.out < fileForTestingV2.txt
 
 ## Part 3 - Syntactic Analysis
 ### Assignment Details:
@@ -59,6 +60,22 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   4. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
   5. **Additional Instruction:** Handle a new instruction for initializing the vehicle's state.
 
+- **How To Use:**
+    ```bash
+     #Prerequisites:
+     sudo apt update
+     sudo apt install gcc make bison flex
+    
+     #Building and Running
+    
+     #Navigate to the CompilersProjectV3 directory:
+     cd CompilersProjectV3
+    
+     #Compile the lexical analyzer and syntatic analyzer using this shell script:
+     ./scriptV3.sh projectV3
+    
+     #Run the program with the input file provided:
+     ./a.out < fileForTestingV3.txt
 **Stay tuned for updates and additional instructions as you progress through each part of the project. Feel free to reach me out for any clarifications or assistance.**
 
 Happy coding! 🚀
