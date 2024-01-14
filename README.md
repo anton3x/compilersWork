@@ -35,13 +35,13 @@ Ensure you have [LEX/FLEX](flex-link) installed on your system.
 
 #### Building and Running
 
-# Navigate to the CompilersProjectV2 directory:
+##### Navigate to the CompilersProjectV2 directory:
 cd CompilersProjectV2
 
-# Compile the lexical analyzer using this shell script:
+##### Compile the lexical analyzer using this shell script:
 ./scriptV2.sh projectV2
 
-# Run the program with the input file provided:
+##### Run the program with the input file provided:
 ./a.out fileForTestingV2.txt
 
 ## Part 3 - Syntactic Analysis
