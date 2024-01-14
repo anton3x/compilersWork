@@ -43,7 +43,7 @@ cd part2
 make
 
 # Run the program with an input file:
-./part2_executable input_file.txt```
+./part2_executable input_file.txt bash```
 
 ## Part 3 - Syntactic Analysis
 ### Assignment Details:
