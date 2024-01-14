@@ -9,33 +9,33 @@
 
 
 M [a-zA-Z0-9]{1,5}
-LISTA \([a-zA-Z0-9]{5},(0*)[1-9][0-9]*\)(,[ ]\([a-zA-Z0-9]{5},(0*)[1-9][0-9]*\))*
+LIST \([a-zA-Z0-9]{5},(0*)[1-9][0-9]*\)(,[ ]\([a-zA-Z0-9]{5},(0*)[1-9][0-9]*\))*
 I (B|T|M|(T,(B|M))|(B,(T|M))|(M,(T|B))|(B,T,M)|(T,M,B)|(M,B,T)|(T,B,M)|(M,T,B)|(B,M,T))
-LOCALIZACAO ([ A-Za-z]{7,})
+LOCATION ([ A-Za-z]{7,})
 
 %%
 
-INICIO-DAS-INSTRUCOES { return INICIO_DAS_INSTRUCOES; }
-FINAL-DAS-INSTRUCOES  { return FINAL_DAS_INSTRUCOES; }
+START-OF-INSTRUCTIONS { return START_OF_INSTRUCTIONS; }
+END-OF-INSTRUCTIONS  { return END_OF_INSTRUCTIONS; }
 
-MANUTENCAO  { return MANUTENCAO; }
-CARREGA-BATERIA  { return CARREGA_BATERIA; }
-ENTREGA     { return ENTREGA; }
-RECOLHE     { return RECOLHE; }
-INIT-ESTADO { return INIT_ESTADO; }
-ESTADO      {return ESTADO;}
+MAINTENANCE  { return MAINTENANCE; }
+CHARGE-BATTERY  { return CHARGE_BATTERY; }
+DELIVERY     { return DELIVERY; }
+PICKUP     { return PICKUP; }
+INIT-STATE { return INIT_STATE; }
+STATUS      {return STATUS;}
 
-{LOCALIZACAO} {yylval.letras=strdup(yytext);return LOCALIZACAO;}
-\(\[{LISTA}\]\)       {yylval.letras=strdup(yytext);return LISTA;}
-\[{LISTA}\]|"#"       {yylval.letras=strdup(yytext);return LISTA_1;}
+{LOCATION} {yylval.letras=strdup(yytext);return LOCATION;}
+\(\[{LIST}\]\)       {yylval.letras=strdup(yytext);return LIST;}
+\[{LIST}\]|"#"       {yylval.letras=strdup(yytext);return LIST_1;}
 
-{M}           {yylval.letras=strdup(yytext);return M;}
+{M}           {yylval.letras=strdup(yytext);return M;}             
 {I}            {yylval.letras=strdup(yytext);return I;}
 [\{\}\;\(\)\,]     {return yytext[0];}
 
 [ \t \n \r]+
 
 
-.                   { printf("Erro lexico: simbolo desconhecido ->%s<- \n ", yytext);return yytext[0];}
+.                   { printf("Lexical error: unknown symbol ->%s<- \n ", yytext);return yytext[0];}
 <<EOF>>             { return 0;}
 %%

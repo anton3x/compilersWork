@@ -100,17 +100,17 @@
 
 
 %start program
-%token <letras> MANUTENCAO CARREGA_BATERIA ENTREGA RECOLHE ESTADO INIT_ESTADO INICIO_DAS_INSTRUCOES FINAL_DAS_INSTRUCOES LISTA I LOCALIZACAO M LISTA_1
+%token <letras> MAINTENANCE CHARGE_BATTERY DELIVERY PICKUP STATUS INIT_STATE START_OF_INSTRUCTIONS END_OF_INSTRUCTIONS LIST I LOCATION M LIST_1
 
 
 
 
 %%
 
-program : INICIO_DAS_INSTRUCOES '{' instrucoes '}' FINAL_DAS_INSTRUCOES 
+program : START_OF_INSTRUCTIONS '{' instructions '}' END_OF_INSTRUCTIONS 
         ;
 
-instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' M ',' LISTA_1 ',' M ')'         { 
+instructionINIT : INIT_STATE '(' LOCATION ',' M ',' LIST_1 ',' M ')'         { 
                                                                 bool usados[4] = {false, false,false,false};
                                                                 char vetorAux1[2][1000] = {"\0"};
                                                                 int quantidades[2] = {0,0};
@@ -276,15 +276,14 @@ instrucaoINIT : INIT_ESTADO '(' LOCALIZACAO ',' M ',' LISTA_1 ',' M ')'         
                                                                 }
                                                                 ;
 
-instrucoes : /*vazio*/
-           |  instrucaoINIT instrucoesS /*alterei antes o ; nao existia mas assim garante que tem que ter o ;*/
-           |  instrucao instrucoesS
+instructions :  instructionINIT instructionS /*alterei antes o ; nao existia mas assim garante que tem que ter o ;*/
+           |  instruction instructionS
            ;
-instrucoesS : /*vazio*/
-            | instrucoesS ';' instrucao
+instructionS : /*vazio*/
+            | instructionS ';' instruction
             ;
 
-instrucao : MANUTENCAO '(' M ')' {
+instruction : MAINTENANCE '(' M ')' {
                                                 if((atoi($3) >= 0 && atoi($3) <= 2) && (strlen($3) == 1))
                                                 {
                                                     
@@ -308,7 +307,7 @@ instrucao : MANUTENCAO '(' M ')' {
                                                         }
 
                                                         //se o contador de vezes que foi a manutencao for igual a 3, apresenta um erro
-                                                        if (numManutencao > 3)
+                                                        if (numManutencao >= 3)
                                                         {
                                                             printf("\nO carro ja foi mais de 3 vezes a manutencao, cuidado!!!\n");
                                                             //resetar o contador de manutencao
@@ -331,7 +330,7 @@ instrucao : MANUTENCAO '(' M ')' {
                                                 }
 
                                      			}
-          | CARREGA_BATERIA '(' M ')'  {        if((atoi($3) >= 0 && atoi($3) <= 2) && (strlen($3) == 1))
+          | CHARGE_BATTERY '(' M ')'  {        if((atoi($3) >= 0 && atoi($3) <= 2) && (strlen($3) == 1))
                                                 {
                                                    
                                                     //imprime o estado inicial do carro
@@ -372,7 +371,7 @@ instrucao : MANUTENCAO '(' M ')' {
                                                     printf("CARREGA-BATERIA(%s) - INVALIDA\n\n", $3);
                                                 }
                                         }
-          | ENTREGA '(' M ',' M ',' M ')' {
+          | DELIVERY '(' M ',' M ',' M ')' {
                                                             //validar a linha de entrega
                                                             //se usasse o L aqui ia dar ambiguidade com o M, visto que o M engloba o L entao usasse o M e verificasse se esta correto
                                                             bool materialValido = false;
@@ -523,7 +522,7 @@ instrucao : MANUTENCAO '(' M ')' {
                                                             }
 
 
-          | RECOLHE LISTA   {               
+          | PICKUP LIST   {               
                                             //imprimir estado inicial do carro
                                             printInfo(false);
                                             //imprime a instrucao passada
@@ -651,7 +650,7 @@ instrucao : MANUTENCAO '(' M ')' {
                                             //retornar ao contexto inicial
                                             
             }
-          | ESTADO '(' I ')'  {
+          | STATUS '(' I ')'  {
                                                         //printf("%s", $3);
                                                         /*printf("Letra detectada: %c\n", $4[0]);*/
 
