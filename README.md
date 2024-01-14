@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to the Compilers project, a comprehensive practical project split into three parts designed for the 1st semester of the 2nd year of Computer Engineering. This project focuses on developing a set of regular expressions, finite automata, and syntactic analysis tools to enable communication with an autonomous electric vehicle in the Compiling&Building factory.
+Welcome to the Compilers project, a comprehensive practical project split into three parts designed for the 1st semester of the 2nd year of Informatics Engineering. This project focuses on developing a set of regular expressions, finite automata, and syntactic analysis tools to enable communication with an autonomous electric vehicle in the Compiling&Building factory.
 
 ## Part 1 - Regular Expressions and Finite Automata
 ### Assignment Details:
