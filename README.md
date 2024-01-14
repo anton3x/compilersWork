@@ -29,6 +29,21 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   3. **Action Triggers:** Implement actions for each recognized instruction to update and print the vehicle's state.
   4. **Error Handling:** Validate irregular situations and raise alerts when they occur.
   5. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
+- **How To Use:**
+#### Prerequisites
+Ensure you have [LEX/FLEX](flex-link) installed on your system.
+
+#### Building and Running
+
+```bash
+# Navigate to the Part 2 directory:
+cd part2
+
+# Compile the lexical analyzer:
+make
+
+# Run the program with an input file:
+./part2_executable input_file.txt
 
 ## Part 3 - Syntactic Analysis
 ### Assignment Details:
