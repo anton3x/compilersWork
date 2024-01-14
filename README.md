@@ -30,8 +30,9 @@ Welcome to the Compilers project, a comprehensive practical project split into t
   4. **Error Handling:** Validate irregular situations and raise alerts when they occur.
   5. **Initial and Final State Printing:** Print the initial and final state of the vehicle.
 - **How To Use:**
-    ```bash#### Prerequisites
-    Ensure you have [LEX/FLEX](flex-link) installed on your system.
+    ```bash#### Prerequisites:
+    sudo apt update
+    sudo apt install gcc make bison flex
     
     #### Building and Running
     
